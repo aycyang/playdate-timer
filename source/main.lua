@@ -1,25 +1,42 @@
 import "CoreLibs/graphics"
 
-local maxSeconds <const> = 30
+local maxSeconds <const> = 120
 
 local angle = 0
 local timerIsRunning = false
 local currentTimer = 0
+
+function init()
+  playdate.graphics.setLineWidth(4)
+end
+
+init()
+
+function trunc(f)
+  return f // 1
+end
 
 function clamp(n, lower, upper)
   return math.min(math.max(n, lower), upper)
 end
 
 function playdate.downButtonDown()
-  print("down pressed")
-  if not timerIsRunning then
-    timerIsRunning = true
-  end
+  timerIsRunning = not timerIsRunning
 end
 
 function playdate.update()
   local deltaTime = playdate.getElapsedTime()
   playdate.resetElapsedTime()
+
+  if timerIsRunning then
+    playdate.graphics.setBackgroundColor(playdate.graphics.kColorBlack)
+    playdate.graphics.setColor(playdate.graphics.kColorWhite)
+    playdate.graphics.setImageDrawMode(playdate.graphics.kDrawModeFillWhite)
+  else
+    playdate.graphics.setBackgroundColor(playdate.graphics.kColorWhite)
+    playdate.graphics.setColor(playdate.graphics.kColorBlack)
+    playdate.graphics.setImageDrawMode(playdate.graphics.kDrawModeFillBlack)
+  end
 
   playdate.graphics.clear()
 
@@ -43,7 +60,8 @@ function playdate.update()
   -- draw the arc
   if angle == 0 then
   else
-    playdate.graphics.drawArc(200, 120, 100, 0, angle)
+    playdate.graphics.drawArc(
+      playdate.geometry.arc.new(200, 120, 100, 0, angle))
   end
 
   -- draw the circle at the end of the arc
@@ -51,6 +69,8 @@ function playdate.update()
   playdate.graphics.fillCircleAtPoint(
     200 + 100 * math.sin(rad),
     120 - 100 * math.cos(rad),
-    5)
+    6)
 
+  -- draw text
+  playdate.graphics.drawText(string.format("%d", trunc(currentTimer)), 200, 120)
 end
